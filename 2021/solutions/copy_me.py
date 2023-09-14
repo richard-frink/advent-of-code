@@ -10,6 +10,10 @@ def solve1(input):
 def solve2(input):
     print(input)
 
+
+def solve123(input):
+    print(input)
+
 def main():
     input = read_input()
     solve1(input)
