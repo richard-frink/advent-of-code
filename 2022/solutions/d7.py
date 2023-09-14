@@ -1,31 +1,55 @@
-
 import common.input_parsers as common_input
-import common.logical_functions as common_logic
+
+
+# taking this from online
+def add_path_to_directories(path, directories):
+    if path not in directories.keys():
+        directories[path] = 0
+    return directories
+
+
+def get_sized_directories(command_lines):
+    directories_size = {}
+    current_stack = []
+    current_path = ""
+    for line in command_lines:
+        if line.startswith("$ cd"):
+            # maintaining directories list
+            if not line.startswith("$ cd ..") and not line.startswith("$ cd /"):
+                current_path += f"/{line.split()[-1]}" if current_path != "/" else line.split()[-1]
+                current_stack.append(current_path)
+                directories_size = add_path_to_directories(current_path, directories_size)
+            # maintaining directories list
+            elif line.strip() == "$ cd /":
+                current_path = "/"
+                current_stack = ["/"]
+                directories_size = add_path_to_directories(current_path, directories_size)
+            # maintaining directories list
+            elif line.strip() == "$ cd ..":
+                current_path = "/".join(current_path.split("/")[:-1])
+                current_stack.pop()
+        if line[0].isdigit():
+            file_size = int(line.split()[0])
+            # this will maintain a running list of all files per every possible directory path
+            for directory in current_stack:
+                directories_size[directory] += file_size
+    return directories_size
 
 
 def solve1():
     command_lines = common_input.read_puzzle_input_as_list(7)
-    tree = common_logic.convert_directory_comands_to_tree(command_lines)
-    total_across_directories = 0
-    directories_with_totals = {}
+    directories_size = get_sized_directories(command_lines)
+    final_list = [el for el in directories_size.values() if el <= 100000]
+    print(sum(final_list))
 
-    # for every directory, if we don't have disk sizes for every item then we aren't done
-    while not all([all([' ' in x for x in v]) for k,v in tree.items()]):
-        for k,v in tree.items():
-            # if every item in the given directory has disk sizes then we can count it
-            if all([' ' in x for x in v]):
-                total = sum([int(x.split(' ')[0]) for x in v])
-                directories_with_totals[k] = total
-                # since we have the total, lets put that number everywhere this directory is referenced
-                for k2, v2 in tree.items():
-                    for item in v2:
-                        if item == k: # if the directory we got a total for is in they keys list, swap it
-                            v2[v2.index(item)] = str(total) + ' ' + item
-                            tree[k2] = v2
-    print(tree)
 
 def solve2():
     command_lines = common_input.read_puzzle_input_as_list(7)
+    directories_size = get_sized_directories(command_lines)
+    current_root_size = directories_size["/"]
+    space_to_free = current_root_size - 40000000
+    final_list = sorted([el for el in directories_size.values() if el >= space_to_free])
+    print(final_list[0])
 
 
 def main():

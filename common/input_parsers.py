@@ -61,6 +61,26 @@ def read_puzzle_input_as_list_of_lists_per_line(puzzle_num, separator, extra_suf
 
 # looks like this
 #####
+# r,234,456
+# n,624
+# k,918,452,701
+def read_puzzle_input_as_numerical_list_of_lists_per_line_no_separator(puzzle_num, extra_suffix=''):
+    puzzle_input_file = '../inputs/input' + str(puzzle_num) + extra_suffix + '.txt'
+    final_input = []
+    with open(puzzle_input_file) as file:
+        for line in file:
+            line = line.rstrip().lstrip().replace("\n", "").replace("  ", " ")
+            if line == "":
+                continue
+            row = []
+            for c in line:
+                row.append(int(c))
+            final_input.append(row)
+    return final_input
+
+
+# looks like this
+#####
 # 56rth651h
 # 651sdf6g54sdf
 # 984eg3afr4e8
